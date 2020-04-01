@@ -1,0 +1,7 @@
+README.md
+setup.py
+sinaps.egg-info/PKG-INFO
+sinaps.egg-info/SOURCES.txt
+sinaps.egg-info/dependency_links.txt
+sinaps.egg-info/requires.txt
+sinaps.egg-info/top_level.txt
