@@ -11,8 +11,10 @@ setup(
     author_email='cwseitz@iu.edu',
     packages=['sinaps'],
 
-    install_requires=['trackpy==0.4.2',
+    install_requires=['numpy',
+                     'trackpy==0.4.2',
                      'pims==0.4.1',
+                     'psf',
                      'scikit-image==0.16.2',
                      'seaborn==0.9.0',
                      'matplotlib-scalebar==0.6.1',

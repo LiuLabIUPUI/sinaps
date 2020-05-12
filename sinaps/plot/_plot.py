@@ -385,31 +385,3 @@ def show_force_comp(traj_df):
 					  ax_is_box=False)
 	plt.tight_layout()
 	plt.show()
-
-def save_animation(frames):
-
-	"""Save a matplotlib ArtistAnimation object of the simulation
-
-	Parameters
-	----------
-	"""
-
-	fig, ax = plt.subplots()
-	nframes = len(frames)
-	ims = []
-	for i in range(nframes):
-
-		im = plt.imshow(self.frames[i], animated=True, cmap='coolwarm')
-		ims.append([im])
-
-	ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
-									repeat_delay=1000)
-
-
-	from matplotlib.animation import FFMpegWriter
-	writer = FFMpegWriter(fps=15,
-						  codec='libx264',
-						  metadata=dict(artist='Me'),
-						  bitrate=1800)
-	ani.save("movie.mp4", writer=writer)
-	plt.show()

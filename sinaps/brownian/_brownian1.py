@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import warnings
 from scipy.stats import norm, random_correlation
-from util import *
+from sinaps.util import *
 
 def slv_langevin(a, damp_ratio, dt=0.1):
 
@@ -36,7 +36,7 @@ def slv_langevin(a, damp_ratio, dt=0.1):
 	return v
 
 
-def build_traj(traj_df=None,
+def build_traj1(traj_df=None,
 			   nparticles=3,
 			   nsamples=5,
 			   deg_freedom=3,

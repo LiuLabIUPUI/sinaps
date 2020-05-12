@@ -9,7 +9,13 @@ from skimage.io import imsave
 from skimage.util import img_as_ubyte
 from matplotlib.ticker import MultipleLocator
 from numpy import linalg as la
-from plot import plt2array
+
+
+def normalize_by_frame(frames):
+
+	for i, frame in enumerate(frames):
+		frames[i] = frames[i]/frames[i].max()
+	return frames
 
 def gen_lattice(nparticles=9, ndim=3, show_lattice=False):
 
@@ -39,12 +45,12 @@ def gen_lattice(nparticles=9, ndim=3, show_lattice=False):
 		if not is_perfect_square(nparticles):
 			raise ValueError('nparticles is not a perfect square')
 			return
-		size = np.sqrt(nparticles)
+		size = int(np.sqrt(nparticles))
 	if ndim == 3:
 		if not is_perfect_cube(nparticles):
 			raise ValueError('nparticles is not a perfect cube')
 			return
-		size = np.cbrt(nparticles)
+		size = int(np.cbrt(nparticles))
 	#
 	#~~~~~~~Build the lattice~~~~~~~~~~
 	#
@@ -78,6 +84,24 @@ def gen_lattice(nparticles=9, ndim=3, show_lattice=False):
 		plt.show()
 
 	return lattice_pts
+
+
+def add_origins_to_df(traj_df, origins, scale=1):
+
+	origins = origins*scale
+	nparticles = traj_df['particle'].nunique()
+	for n in range(nparticles):
+		origin = origins[n]
+		traj_df.loc[traj_df['particle'] == n, 'x'] \
+						 += float(origin[0])
+		traj_df.loc[traj_df['particle'] == n, 'y'] \
+						 += float(origin[1])
+		if origins.shape[1] == 3:
+			traj_df.loc[traj_df['particle'] == n, 'z'] \
+							 += float(origin[2])
+
+	return traj_df
+
 
 def is_perfect_square(n):
 
