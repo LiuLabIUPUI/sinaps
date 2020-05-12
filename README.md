@@ -19,7 +19,7 @@ containing setup.py, not the sinaps subdirectory
 cd /path/to/sinaps/
 ```
 
-Install cellquantifier from source in dev mode
+Install sinaps from source in dev mode
 
 ```
 pip install -e .
