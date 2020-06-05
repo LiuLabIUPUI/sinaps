@@ -130,6 +130,9 @@ def add_noise(frame, sigma_dark=10, bit_depth=8, baseline=0):
 							  size=frame.shape) + frame
 	frame += baseline
 
+	# Set negative values to zero
+	frame = frame.clip(min=0)
+
 	return frame
 
 
