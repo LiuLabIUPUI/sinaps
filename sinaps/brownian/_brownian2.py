@@ -1,15 +1,72 @@
-from math import sqrt
-from scipy.stats import norm
+from numpy.random import normal, uniform
 import numpy as np
 import pandas as pd
-import warnings
-warnings.filterwarnings("ignore")
 
-def build_traj2(nparticles,
-				nframes,
-				ndim=2,
-				dcoeff=10,
-				origins=None):
+def get_trajectory_1(nframes, dcoeff, origin=None):
+
+	"""
+	Build a trajectory where each displacement is selected from a gaussian
+	distribution N(m, sigma) where sigma is constant. Displacements are measured
+	relative to preceding position
+
+	Use this method when msd = <r(t+n) - r(t)> (individual msd)
+
+	Parameters
+	----------
+	"""
+
+	columns = ['frame', 'particle', 'x', 'y','dx','dy']
+	traj_df = pd.DataFrame(columns=columns)
+	traj_df['frame'] = np.arange(0, nframes, 1)
+	traj_df['sigma'] = np.sqrt(2*dcoeff)
+	traj_df['dx'] = normal(size=nframes, scale=traj_df['sigma'])
+	traj_df['dy'] = normal(size=nframes, scale=traj_df['sigma'])
+
+	if origin is None:
+		x0,y0 = (0,0)
+	else:
+		x0, y0 = origin
+
+	traj_df['x'] = traj_df['dx'].cumsum() + x0
+	traj_df['y'] = traj_df['dy'].cumsum() + y0
+
+	return traj_df
+
+def get_trajectory_2(nframes, dcoeff, origin=None):
+
+	"""
+	Build a trajectory where each displacement is selected from a gaussian
+	distribution N(m, sigma) where sigma is a function of time. Displacements
+	are measured relative to the origin
+
+	Use this method when msd = <r(t) - r(0)> (ensemble msd)
+
+	Parameters
+	----------
+	"""
+
+	columns = ['frame', 'particle', 'x', 'y','dx','dy']
+	traj_df = pd.DataFrame(columns=columns)
+	traj_df['frame'] = np.arange(0, nframes, 1)
+	traj_df['sigma'] = np.sqrt(2*dcoeff*traj_df['frame'])
+	traj_df['dx'] = normal(size=nframes, scale=traj_df['sigma'])
+	traj_df['dy'] = normal(size=nframes, scale=traj_df['sigma'])
+
+	if origin is None:
+		x0,y0 = (0,0)
+	else:
+		x0, y0 = origin
+
+	traj_df['x'] = traj_df['dx'] + x0
+	traj_df['y'] = traj_df['dy'] + y0
+
+	return traj_df
+
+def get_trajectories(nparticles,
+					 nframes,
+					 dcoeff=10,
+					 method='individual',
+					 origins=None):
 
 	"""Build a set of trajectories based on gaussian distributed displacements
 
@@ -19,30 +76,19 @@ def build_traj2(nparticles,
 			   frames per second
 	"""
 
-	columns = ['frame', 'particle','x', 'y','dx','dy']
-	traj_df = pd.DataFrame(columns=columns)
+	columns = ['frame', 'particle', 'x', 'y','dx','dy']
+	df = pd.DataFrame(columns=columns)
 
-	for n in range(nframes):
-
-		scale = np.sqrt(4*dcoeff*n)
-		this_df = pd.DataFrame(columns=columns)
-		this_df['particle'] = np.arange(0,nparticles,1)
-		this_df = this_df.assign(frame=n)
-
-		this_df['dx'] = norm.rvs(size=nparticles, scale=scale)
-		this_df['dy'] = norm.rvs(size=nparticles, scale=scale)
-
-		traj_df = traj_df.append(this_df)
+	if origins is None:
+		origins = [None for n in range(nparticles)]
 
 	for n in range(nparticles):
+		if method == 'individual':
+			this_df = get_trajectory_1(nframes, dcoeff, origin=origins[n])
+		elif method == 'ensemble':
+			this_df = get_trajectory_2(nframes, dcoeff, origin=origins[n])
 
-		this_df = traj_df.loc[traj_df['particle'] == n]
-		x0,y0 = (0,0)
+		this_df = this_df.assign(particle=n)
+		df = pd.concat([df, this_df])
 
-		if origins is not None:
-			x0,y0 = origins[n]
-		this_df['x'] = this_df['dx'].cumsum() + x0
-		this_df['y'] = this_df['dy'].cumsum() + y0
-		traj_df.loc[traj_df['particle'] == n] = this_df
-
-	return traj_df
+	return df
